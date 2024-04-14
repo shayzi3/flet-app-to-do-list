@@ -3,11 +3,13 @@ import json
 
 import flet as ft
 import aiosqlite
+import add_new_note as add
 
 from datetime import datetime as dt
 
 
-async def main(page: ft.Page) -> None:
+
+async def main_page(page: ft.Page) -> None:
      page.title = 'To Do List'
      page.window_width = 500
      page.window_height = 700
@@ -16,25 +18,26 @@ async def main(page: ft.Page) -> None:
      # * If user push on new_text_in_app that delete all vidgets and starting func add_new_note
      async def in_add_new_note(e) -> None:
           page.controls.clear()
-          await add_new_note(page)
+          await add.add_note_page(page)
           
-          
+     # ! Function for change note in window appbar
      async def appbar(e) -> None:
           ...
-          
+     
+     # TODO: Function for delete note from db     
      async def delete_note(e) -> None:
           async with aiosqlite.connect('app.db') as db:
                async with db.execute("SELECT data FROM app") as rows:
                     rows = await rows.fetchone()
                     rows: list[str] = json.loads(rows[0])
                
-               del rows[rows.index(delete.data)]
+               del rows[rows.index(delete.data)]   # ? Delete note
                
                await db.execute("UPDATE app SET data = ?", [json.dumps(rows)])
                await db.commit()
                
           page.controls.clear()
-          await main(page)
+          await main_page(page)
      
      
      # TODO: Checking in db have notes or no at user.
@@ -48,6 +51,7 @@ async def main(page: ft.Page) -> None:
      show_notes_row = None  
     
      if not rows:
+          # * Text in start "So emptu:( Add a new note!"
           show_notes_row = ft.Row(
                controls=[
                     ft.Text(
@@ -59,14 +63,16 @@ async def main(page: ft.Page) -> None:
           )
           
      elif rows:
-          list_: list[ft.CupertinoListTile] = []
-          now = dt.now()
+          list_: list[ft.CupertinoListTile] = []   # ! for keep notes
+          now = dt.now()  # TODO: time now
           
          
           for i in rows:
+               # ? Delete and change buttons
                delete = ft.IconButton(icon=ft.icons.DELETE_OUTLINE, icon_size=15, on_click=delete_note, icon_color='white', data=i)
                create = ft.IconButton(icon=ft.icons.CREATE_OUTLINED, icon_size=15, on_click=appbar, icon_color='white', data=i)
                
+               # ! Show notes
                list_.append(
                     ft.CupertinoListTile(
                          subtitle=ft.Text(now.strftime('%A, %d %B %Y %I: %M %p')),
@@ -81,6 +87,7 @@ async def main(page: ft.Page) -> None:
                     )
                )
                
+          # TODO: Column with notes
           show_notes_row = ft.Column(
                controls=list_,
                alignment='start'
@@ -107,65 +114,6 @@ async def main(page: ft.Page) -> None:
      )
      
      
-async def add_new_note(page: ft.Page) -> None:
-     page.title = 'To Do List'
-     page.window_width = 500
-     page.window_height = 700
-     
-     async def back(e):
-          page.controls.clear()
-          await main(page)
-          
-          
-     async def write_in_db_not(e):
-          if text_field.value:
-               async with aiosqlite.connect('app.db') as db:
-                    async with db.execute("SELECT data FROM app") as rows:
-                         data = await rows.fetchone()
-                         data: list[str] = json.loads(data[0])
-                         
-                         data.append(text_field.value)
-                         
-                    await db.execute("UPDATE app SET data = ?", [json.dumps(data)])
-                    await db.commit()
-               page.controls.clear()
-               await main(page)
-     
-     
-     text_field = ft.TextField(
-          label='Text',
-          border_color='white',
-          text_align=ft.TextAlign.CENTER,
-          multiline=True
-     )
-    
-    
-     rows = ft.Row(
-          controls=[
-               ft.IconButton(
-                    icon=ft.icons.CHECK,
-                    icon_color='white',
-                    icon_size=30,
-                    on_click=write_in_db_not,
-                    tooltip='commit new note'
-               ),
-               ft.IconButton(
-                    icon=ft.icons.ARROW_LEFT,
-                    icon_color='white',
-                    icon_size=30,
-                    on_click=back,
-                    tooltip='back in main menu'
-               )
-          ],
-          alignment='start'
-     )
-     
-     page.add(
-          text_field,
-          rows
-     )
-     
-     
 
 
 # ! Creates db for tracking of notes.
@@ -182,4 +130,4 @@ async def create_db() -> bool:
 
 
 if __name__ == '__main__':
-     ft.app(main)
+     ft.app(main_page)
