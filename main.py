@@ -1,4 +1,3 @@
-import asyncio
 import json
 
 import flet as ft
@@ -15,6 +14,8 @@ async def main_page(page: ft.Page) -> None:
      page.window_width = 500
      page.window_height = 700
      page.scroll = 'always'
+     
+     await create_db()
      
      # * If user push on new_text_in_app that delete all vidgets and starting func add_new_note
      async def in_add_new_note(e) -> None:
@@ -55,14 +56,13 @@ async def main_page(page: ft.Page) -> None:
     
      if not rows:
           # * Text in start "So emptu:( Add a new note!"
-          show_notes_row = ft.Row(
-               controls=[
-                    ft.Text(
-                         value='So empty:( Add a new note!',
-                         text_align='start',
-                         color='white'    
-                    )
-               ]
+          show_notes_row = ft.AppBar(
+               title=ft.Text('Empty! Add new note.'),
+               center_title=True,
+               bgcolor=ft.colors.BLUE,
+               automatically_imply_leading=False,
+               toolbar_height=30
+               
           )
           
      elif rows:
@@ -96,27 +96,27 @@ async def main_page(page: ft.Page) -> None:
                alignment='start'
           )
                     
+     bottom_appbar = ft.BottomAppBar(
+          bgcolor=ft.colors.BLUE,
+          shape=ft.NotchShape.CIRCULAR,
+          content=ft.Row(controls=
+               [ 
+                    ft.IconButton(icon=ft.icons.SUNNY, icon_color=ft.colors.WHITE, tooltip='change theme', icon_size=20),
+                    ft.Container(expand=True),
+                    ft.IconButton(icon=ft.icons.SEARCH, icon_color=ft.colors.WHITE, tooltip='search note', on_click=..., icon_size=20),
+                    ft.IconButton(icon=ft.icons.ADD, icon_color=ft.colors.WHITE, tooltip='add new note', on_click=in_add_new_note, icon_size=20)
+               ]
+          ),
+          height=70
+     )
      
      # ? Button for add new note
-     new_text_in_app_row = ft.Row(
-          controls=[
-               ft.IconButton(
-                    icon=ft.icons.ADD,
-                    icon_size=20,
-                    icon_color='white',
-                    on_click=in_add_new_note,
-                    tooltip='add new note',
-               )],
-          alignment=ft.MainAxisAlignment.START
-     )
      
      page.add(
           show_notes_row,
-          new_text_in_app_row
+          bottom_appbar
      )
      
-     
-
 
 # ! Creates db for tracking of notes.
 async def create_db() -> bool:
@@ -132,4 +132,4 @@ async def create_db() -> bool:
 
 
 if __name__ == '__main__':
-     ft.app(main_page)
+     ft.app(main_page)     
