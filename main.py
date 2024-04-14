@@ -11,6 +11,7 @@ async def main(page: ft.Page) -> None:
      page.title = 'To Do List'
      page.window_width = 500
      page.window_height = 700
+     page.scroll = 'always'
      
      # * If user push on new_text_in_app that delete all vidgets and starting func add_new_note
      async def in_add_new_note(e) -> None:
@@ -18,8 +19,23 @@ async def main(page: ft.Page) -> None:
           await add_new_note(page)
           
           
-     async def appbar_after_textbutton(e) -> None:
+     async def appbar(e) -> None:
           ...
+          
+     async def delete_note(e) -> None:
+          async with aiosqlite.connect('app.db') as db:
+               async with db.execute("SELECT data FROM app") as rows:
+                    rows = await rows.fetchone()
+                    rows: list[str] = json.loads(rows[0])
+               
+               del rows[rows.index(delete.data)]
+               
+               await db.execute("UPDATE app SET data = ?", [json.dumps(rows)])
+               await db.commit()
+               
+          page.controls.clear()
+          await main(page)
+     
      
      # TODO: Checking in db have notes or no at user.
      async with aiosqlite.connect('app.db') as db:
@@ -37,19 +53,31 @@ async def main(page: ft.Page) -> None:
                     ft.Text(
                          value='So empty:( Add a new note!',
                          text_align='start',
-                         color='white'
+                         color='white'    
                     )
                ]
           )
           
      elif rows:
-          list_: list[ft.TextButton] = []
+          list_: list[ft.CupertinoListTile] = []
+          now = dt.now()
+          
+         
           for i in rows:
+               delete = ft.IconButton(icon=ft.icons.DELETE_OUTLINE, icon_size=15, on_click=delete_note, icon_color='white', data=i)
+               create = ft.IconButton(icon=ft.icons.CREATE_OUTLINED, icon_size=15, on_click=appbar, icon_color='white', data=i)
+               
                list_.append(
-                    ft.TextButton(
-                         text=i,
-                         icon=ft.icons.NOTE,
-                         on_click=appbar_after_textbutton
+                    ft.CupertinoListTile(
+                         subtitle=ft.Text(now.strftime('%A, %d %B %Y %I: %M %p')),
+                         title=ft.Text(i),
+                         leading=ft.Icon(name=ft.icons.NOTE, color='white'),
+                         trailing=ft.Row(
+                              controls=[
+                                  delete,
+                                  create
+                              ]
+                         )
                     )
                )
                
@@ -65,14 +93,12 @@ async def main(page: ft.Page) -> None:
                ft.IconButton(
                     icon=ft.icons.ADD,
                     icon_size=20,
-                    bgcolor='orange',
                     icon_color='white',
                     on_click=in_add_new_note,
                     tooltip='add new note',
-               )
-          ],
-          alignment='end',
-          vertical_alignment='end'
+               )],
+          alignment=ft.MainAxisAlignment.END,
+          vertical_alignment=ft.CrossAxisAlignment.END
      )
      
      page.add(
@@ -83,8 +109,6 @@ async def main(page: ft.Page) -> None:
      
 async def add_new_note(page: ft.Page) -> None:
      page.title = 'To Do List'
-     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-     page.vertical_alignment = ft.MainAxisAlignment.START
      page.window_width = 500
      page.window_height = 700
      
@@ -101,7 +125,6 @@ async def add_new_note(page: ft.Page) -> None:
                          data: list[str] = json.loads(data[0])
                          
                          data.append(text_field.value)
-                         print(data)
                          
                     await db.execute("UPDATE app SET data = ?", [json.dumps(data)])
                     await db.commit()
@@ -111,7 +134,7 @@ async def add_new_note(page: ft.Page) -> None:
      
      text_field = ft.TextField(
           label='Text',
-          border_color='orange',
+          border_color='white',
           text_align=ft.TextAlign.CENTER,
           multiline=True
      )
@@ -122,7 +145,6 @@ async def add_new_note(page: ft.Page) -> None:
                ft.IconButton(
                     icon=ft.icons.CHECK,
                     icon_color='white',
-                    bgcolor='orange',
                     icon_size=30,
                     on_click=write_in_db_not,
                     tooltip='commit new note'
@@ -130,12 +152,12 @@ async def add_new_note(page: ft.Page) -> None:
                ft.IconButton(
                     icon=ft.icons.ARROW_LEFT,
                     icon_color='white',
-                    bgcolor='orange',
                     icon_size=30,
                     on_click=back,
                     tooltip='back in main menu'
                )
-          ]
+          ],
+          alignment='start'
      )
      
      page.add(
