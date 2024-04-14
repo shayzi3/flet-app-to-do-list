@@ -10,6 +10,7 @@ async def add_note_page(page: ft.Page) -> None:
      page.title = 'To Do List'
      page.window_width = 500
      page.window_height = 700
+     page.scroll = 'always'
      
      async def back(e):
           page.controls.clear()
@@ -33,7 +34,7 @@ async def add_note_page(page: ft.Page) -> None:
      
      
      text_field = ft.TextField(
-          label='Text',
+          hint_text='Напиши заметку...',
           border_color='white',
           text_align=ft.TextAlign.CENTER,
           multiline=True

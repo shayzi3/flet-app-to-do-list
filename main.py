@@ -4,6 +4,7 @@ import json
 import flet as ft
 import aiosqlite
 import add_new_note as add
+import change_notes as chn
 
 from datetime import datetime as dt
 
@@ -21,8 +22,10 @@ async def main_page(page: ft.Page) -> None:
           await add.add_note_page(page)
           
      # ! Function for change note in window appbar
-     async def appbar(e) -> None:
-          ...
+     async def change_note(e) -> None:
+          page.controls.clear()
+          await chn.change_note_page(page, create.data)
+     
      
      # TODO: Function for delete note from db     
      async def delete_note(e) -> None:
@@ -70,7 +73,7 @@ async def main_page(page: ft.Page) -> None:
           for i in rows:
                # ? Delete and change buttons
                delete = ft.IconButton(icon=ft.icons.DELETE_OUTLINE, icon_size=15, on_click=delete_note, icon_color='white', data=i)
-               create = ft.IconButton(icon=ft.icons.CREATE_OUTLINED, icon_size=15, on_click=appbar, icon_color='white', data=i)
+               create = ft.IconButton(icon=ft.icons.CREATE_OUTLINED, icon_size=15, on_click=change_note, icon_color='white', data=i)
                
                # ! Show notes
                list_.append(
@@ -104,8 +107,7 @@ async def main_page(page: ft.Page) -> None:
                     on_click=in_add_new_note,
                     tooltip='add new note',
                )],
-          alignment=ft.MainAxisAlignment.END,
-          vertical_alignment=ft.CrossAxisAlignment.END
+          alignment=ft.MainAxisAlignment.START
      )
      
      page.add(
