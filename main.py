@@ -4,8 +4,10 @@ import flet as ft
 import aiosqlite
 import add_new_note as add
 import change_notes as chn
+import search_note as sc
 
 from datetime import datetime as dt
+
 
 
 
@@ -26,6 +28,10 @@ async def main_page(page: ft.Page) -> None:
      async def change_note(e) -> None:
           page.controls.clear()
           await chn.change_note_page(page, create.data)
+          
+     async def search_note(e):
+          page.controls.clear()
+          await sc.change_note_page(page)
      
      
      # TODO: Function for delete note from db     
@@ -42,7 +48,7 @@ async def main_page(page: ft.Page) -> None:
                
           page.controls.clear()
           await main_page(page)
-     
+          
      
      # TODO: Checking in db have notes or no at user.
      async with aiosqlite.connect('app.db') as db:
@@ -67,9 +73,7 @@ async def main_page(page: ft.Page) -> None:
           
      elif rows:
           list_: list[ft.CupertinoListTile] = []   # ! for keep notes
-          now = dt.now()  # TODO: time now
           
-         
           for i in rows:
                # ? Delete and change buttons
                delete = ft.IconButton(icon=ft.icons.DELETE_OUTLINE, icon_size=15, on_click=delete_note, icon_color='white', data=i)
@@ -78,7 +82,7 @@ async def main_page(page: ft.Page) -> None:
                # ! Show notes
                list_.append(
                     ft.CupertinoListTile(
-                         subtitle=ft.Text(now.strftime('%A, %d %B %Y %I: %M %p')),
+                         subtitle=ft.Text(dt.now().strftime('%A, %d %B %Y %I: %M %p')),
                          title=ft.Text(i),
                          leading=ft.Icon(name=ft.icons.NOTE, color='white'),
                          trailing=ft.Row(
@@ -101,9 +105,8 @@ async def main_page(page: ft.Page) -> None:
           shape=ft.NotchShape.CIRCULAR,
           content=ft.Row(controls=
                [ 
-                    ft.IconButton(icon=ft.icons.SUNNY, icon_color=ft.colors.WHITE, tooltip='change theme', icon_size=20),
                     ft.Container(expand=True),
-                    ft.IconButton(icon=ft.icons.SEARCH, icon_color=ft.colors.WHITE, tooltip='search note', on_click=..., icon_size=20),
+                    ft.IconButton(icon=ft.icons.SEARCH, icon_color=ft.colors.WHITE, tooltip='search note', on_click=search_note, icon_size=20),
                     ft.IconButton(icon=ft.icons.ADD, icon_color=ft.colors.WHITE, tooltip='add new note', on_click=in_add_new_note, icon_size=20)
                ]
           ),

@@ -39,27 +39,34 @@ async def add_note_page(page: ft.Page) -> None:
           text_align=ft.TextAlign.CENTER,
           multiline=True
      )
+     
+     rows = ft.BottomAppBar(
+         bgcolor=ft.colors.BLUE,
+         shape=ft.NotchShape.CIRCULAR,
+         content=ft.Row(
+              controls=[
+                   ft.IconButton(
+                        icon=ft.icons.CHECK,
+                        icon_color='white',
+                        icon_size=20,
+                        on_click=write_in_db_note,
+                        tooltip='commit new note'
+                    ),
+                   ft.Column(expand=True),
+                   
+                   ft.IconButton(
+                        icon=ft.icons.ARROW_LEFT,
+                        icon_color='white',
+                        icon_size=20,
+                        on_click=back,
+                        tooltip='back in main menu'
+                    )
+              ],
+              alignment='start'
+         ),
+         height=70
+    )
     
-    
-     rows = ft.Row(
-          controls=[
-               ft.IconButton(
-                    icon=ft.icons.CHECK,
-                    icon_color='white',
-                    icon_size=30,
-                    on_click=write_in_db_note,
-                    tooltip='commit new note'
-               ),
-               ft.IconButton(
-                    icon=ft.icons.ARROW_LEFT,
-                    icon_color='white',
-                    icon_size=30,
-                    on_click=back,
-                    tooltip='back in main menu'
-               )
-          ],
-          alignment='start'
-     )
      
      page.add(
           text_field,

@@ -39,28 +39,37 @@ async def change_note_page(page: ft.Page, data_note: str) -> None:
           multiline=True
      )
      
-     icon_button = ft.Row(
-          controls=[
-               ft.IconButton(
-                    icon=ft.icons.ARROW_LEFT,
-                    icon_color='white',
-                    icon_size=30,
-                    on_click=back,
-                    tooltip='back in main menu'
-               ),
-               ft.IconButton(
-                    icon=ft.icons.CHECK,
-                    icon_color='white',
-                    icon_size=30,
-                    on_click=update_data_note,
-                    tooltip='commit your change'
-               )
-          ],
-          alignment=ft.MainAxisAlignment.END,
-          vertical_alignment=ft.CrossAxisAlignment.END
+     rows = ft.BottomAppBar(
+          bgcolor=ft.colors.BLUE,
+          shape=ft.NotchShape.CIRCULAR,
+          content=ft.Row(
+               controls=[
+                    ft.IconButton(
+                         icon=ft.icons.CHECK,
+                         icon_color='white',
+                         icon_size=20,
+                         on_click=update_data_note,
+                         tooltip='commit your change'
+                    ),
+                    ft.Column(expand=True),
+                    
+                    ft.IconButton(
+                         icon=ft.icons.ARROW_LEFT,
+                         icon_color='white',
+                         icon_size=20,
+                         on_click=back,
+                         tooltip='back in main menu'
+                    )
+                    
+               ],
+               alignment=ft.MainAxisAlignment.CENTER,
+               vertical_alignment=ft.CrossAxisAlignment.END
+          ),
+          height=70
      )
+     
      
      page.add(
           text,
-          icon_button
+          rows
      )
