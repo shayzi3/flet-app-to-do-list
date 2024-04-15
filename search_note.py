@@ -3,23 +3,29 @@ import json
 import flet as ft
 import aiosqlite
 import main as mn
+import info_note as inf
 
 from datetime import datetime as dt
 
 from numba import prange
 
 
-async def change_note_page(page: ft.Page):
+async def change_note_page_search(page: ft.Page):
      page.title = 'To Do List'
      page.window_width = 500
      page.window_height = 700
      page.scroll = 'always'
      
+          
+     async def information(e: ft.ControlEvent):
+          page.controls.clear()
+          await inf.information_about_note(page, e.control.data)
+     
      
      async def search(e):
           if text.value:
                page.controls.clear()
-               await change_note_page(page)
+               await change_note_page_search(page)
                
                async with aiosqlite.connect('app.db') as db:
                     async with db.execute("SELECT data FROM app") as row:
@@ -32,9 +38,6 @@ async def change_note_page(page: ft.Page):
                     for item in prange(len(split_)):
                          
                          if split_[item].lower() in row[index].lower():
-                              delete = ft.IconButton(icon=ft.icons.DELETE_OUTLINE, icon_size=15, on_click=..., icon_color='white', data=row[index])
-                              change = ft.IconButton(icon=ft.icons.CREATE_OUTLINED, icon_size=15, on_click=..., icon_color='white', data=row[index])
-               
                               result.append(
                                    ft.CupertinoListTile(
                                         subtitle=ft.Text(dt.now().strftime('%A, %d %B %Y %I: %M %p')),
@@ -42,8 +45,7 @@ async def change_note_page(page: ft.Page):
                                         leading=ft.Icon(name=ft.icons.NOTE, color='white'),
                                         trailing=ft.Row(
                                              controls=[
-                                                  delete,
-                                                  change
+                                                  ft.IconButton(icon=ft.icons.INFO_OUTLINE, icon_color='white', icon_size=20, on_click=information, data=row[index])
                                              ]
                                         )
                                    )
@@ -73,7 +75,7 @@ async def change_note_page(page: ft.Page):
      
      
      text = ft.TextField(
-          hint_text='Write a word or letter',
+          hint_text='Напиши слово или букву...',
           border_color='white',
           text_align=ft.TextAlign.CENTER,
           multiline=True,

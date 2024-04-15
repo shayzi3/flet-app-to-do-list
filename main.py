@@ -11,6 +11,7 @@ from datetime import datetime as dt
 
 
 
+
 async def main_page(page: ft.Page) -> None:
      page.title = 'To Do List'
      page.window_width = 500
@@ -31,7 +32,7 @@ async def main_page(page: ft.Page) -> None:
           
      async def search_note(e):
           page.controls.clear()
-          await sc.change_note_page(page)
+          await sc.change_note_page_search(page)
      
      
      # TODO: Function for delete note from db     
@@ -59,11 +60,10 @@ async def main_page(page: ft.Page) -> None:
         
      # ! If not notes, app show 'Empty' or show u notes.   
      show_notes_row = None  
-    
      if not rows:
           # * Text in start "So emptu:( Add a new note!"
           show_notes_row = ft.AppBar(
-               title=ft.Text('Empty! Add new note.'),
+               title=ft.Text('Пусто! Добавь новые заметки.'),
                center_title=True,
                bgcolor=ft.colors.BLUE,
                automatically_imply_leading=False,
@@ -76,8 +76,8 @@ async def main_page(page: ft.Page) -> None:
           
           for i in rows:
                # ? Delete and change buttons
-               delete = ft.IconButton(icon=ft.icons.DELETE_OUTLINE, icon_size=15, on_click=delete_note, icon_color='white', data=i)
-               create = ft.IconButton(icon=ft.icons.CREATE_OUTLINED, icon_size=15, on_click=change_note, icon_color='white', data=i)
+               delete = ft.IconButton(icon=ft.icons.DELETE_OUTLINE, icon_size=20, on_click=delete_note, icon_color='white', data=i)
+               create = ft.IconButton(icon=ft.icons.CREATE_OUTLINED, icon_size=20, on_click=change_note, icon_color='white', data=i)
                
                # ! Show notes
                list_.append(
